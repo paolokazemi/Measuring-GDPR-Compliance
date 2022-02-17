@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  measuring_gdpr:
+    container_name: measuring_gdpr
+    build: .
+    tty: true
+    stdin_open: true
+    working_dir: /app
+    entrypoint: bash -c "pip3 install -r analyse/requirements.txt && tail -f /dev/null"
+    volumes:
+      - ./:/app

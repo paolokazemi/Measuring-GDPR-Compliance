@@ -10,6 +10,7 @@ ONE_MONTH = 60 * 60 * 24 * 30
 def visit_site(site):
     chrome_options = Options()
     chrome_options.headless = True
+    chrome_options.add_argument('--no-sandbox')
     driver = webdriver.Chrome(options=chrome_options)
 
     now = time.time()

@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import time
 import tldextract
@@ -36,6 +37,12 @@ def visit_site(site):
         cookie['persistent'] = cookie['duration'] > ONE_MONTH  # CookieCheck
         # TODO: Identify tracker
         info['cookies'].append(cookie)
+
+    cookie_elements = driver.find_elements(By.CSS_SELECTOR, "[id^=cookie]")
+    if len(cookie_elements) == 0:
+        cookie_elements = driver.find_elements(By.CSS_SELECTOR, "[class^=cookie]")
+
+    info['has_banner'] = len(cookie_elements) > 0
 
     driver.close()
 

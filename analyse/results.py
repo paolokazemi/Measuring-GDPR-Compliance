@@ -1,12 +1,6 @@
+import argparse
 import json
-import sys
 
-
-if len(sys.argv) < 2:
-    print('Usage: python3 results.py <results_file>')
-    exit(1)
-
-[_, result_file] = sys.argv
 
 MINUTE = 60
 HOUR = 60 * MINUTE
@@ -14,7 +8,13 @@ DAY = 24 * HOUR
 MONTH = 30 * DAY
 
 
-with open(result_file, 'r') as f:
+parser = argparse.ArgumentParser(
+    description='Print results after a scan using the output json file.'
+)
+parser.add_argument("-i", "--input", required=True, help="Input json file with the scan results.")
+args = vars(parser.parse_args())
+
+with open(args['input'], 'r') as f:
     results = json.load(f)
 
 

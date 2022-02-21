@@ -1,15 +1,18 @@
 from browser import visit_site
 from tqdm import tqdm
+import argparse
 import json
-import sys
 
-if len(sys.argv) < 3:
-    print('Usage: python3 app.py <domains_file> <output_file>')
-    exit(1)
 
-[_, domains_file, output_file] = sys.argv
+parser = argparse.ArgumentParser(
+    description='Scan a list of websites for non-compliant GDPR implementations.'
+)
+parser.add_argument("-i", "--input", required=True, help="Input file with a domains list.")
+parser.add_argument("-o", "--output", required=True, help="Output json file.")
+args = vars(parser.parse_args())
 
-with open(domains_file, 'r') as input, open(output_file, 'w') as output:
+
+with open(args['input'], 'r') as input, open(args['output'], 'w') as output:
     sites = [line.strip() for line in input.readlines() if len(line.strip()) > 0]
 
     results = []

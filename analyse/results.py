@@ -28,8 +28,8 @@ def getStatistics(result):
         'persistent': len([c for c in result['cookies'] if c['persistent']]),
         'tracker': len([c for c in result['cookies'] if c['tracker']]),
         'session': len([c for c in result['cookies'] if c['duration'] < HOUR]),
-        'hour': len([c for c in result['cookies'] if c['duration'] < DAY]),
-        'day': len([c for c in result['cookies'] if c['duration'] < MONTH]),
+        'hour': len([c for c in result['cookies'] if HOUR <= c['duration'] < DAY]),
+        'day': len([c for c in result['cookies'] if DAY <= c['duration'] < MONTH]),
         'month': len([c for c in result['cookies'] if c['duration'] >= MONTH]),
     }
 
@@ -43,6 +43,7 @@ stats = [getStatistics(result) for result in results]
 print(f'HTTP to HTTPS redirects: {getAvg([r["redirect_https"] for r in stats], 4) * 100}%')
 print(f'HTTPS support: {getAvg([r["https_support"] for r in stats], 4) * 100}%')
 print()
+print(f'No cookies set: {getAvg([r["cookies"] == 0 for r in stats]) * 100}%')
 print(f'Average cookies set: {getAvg([r["cookies"] for r in stats])}')
 print(f'Average first party cookies: {getAvg([r["first_party"] for r in stats])}')
 print(f'Average third party cookies: {getAvg([r["third_party"] for r in stats])}')

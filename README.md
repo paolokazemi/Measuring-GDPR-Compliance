@@ -21,5 +21,7 @@ docker build . -t measuring_gdpr
 
 ### References
 \[0\]: Alexa Internet, Inc. Alexa - Top sites. https://www.alexa.com/topsites, 2022.
+
 \[1\]: Naab, Johannes, et al. "Prefix top lists: Gaining insights with prefixes from domain-based top lists on dns deployment." Proceedings of the Internet Measurement Conference. 2019.
+
 \[2\]: Trevisan, Martino, et al. "4 Years of EU Cookie Law: Results and Lessons Learned." Proc. Priv. Enhancing Technol. 2019.2 (2019): 126-145.

@@ -19,8 +19,8 @@ with open(args['input'], 'r') as input, open(args['output'], 'w') as output:
     for site in tqdm(sites):
         try:
             results.append(visit_site(site))
-        except:
+        except Exception as e:
             # TODO: Analyse all possible causes of error
-            print(f'Error analysing: {site}')
+            print(f'Error analysing: {site}, error {str(e)}')
 
     json.dump(results, output, indent=4)

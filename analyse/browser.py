@@ -56,6 +56,12 @@ def visit_site(site):
     cookie_elements = driver.find_elements(By.CSS_SELECTOR, "[id^=cookie]")
     if len(cookie_elements) == 0:
         cookie_elements = driver.find_elements(By.CSS_SELECTOR, "[class^=cookie]")
+    if len(cookie_elements) == 0:
+        cookie_elements = driver.find_elements(By.XPATH, "//*[contains(text(), 'cookie')]")
+    if len(cookie_elements) == 0:
+        cookie_elements = driver.find_elements(By.XPATH, "//*[contains(text(), 'Cookie')]")
+    if len(cookie_elements) == 0:
+        cookie_elements = driver.find_elements(By.XPATH, "//*[contains(text(), 'COOKIE')]")
 
     info['has_banner'] = len(cookie_elements) > 0
 

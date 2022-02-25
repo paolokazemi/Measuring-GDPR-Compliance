@@ -1,4 +1,5 @@
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import time
 import tldextract
@@ -8,8 +9,10 @@ ONE_MONTH = 60 * 60 * 24 * 30
 
 
 def visit_site(site):
-    with open('../data/cookie_check_trackers.txt', 'r') as trackers_file:
+    with open('../data/cookie_check_trackers.txt', 'r') as trackers_file, \
+         open('../data/fanboy_cookie_selectors.txt', 'r') as selectors_file:
         trackers = [line.strip() for line in trackers_file.readlines()]
+        cookie_selectors = [line.strip() for line in selectors_file.readlines()]
 
     chrome_options = Options()
     chrome_options.headless = True
@@ -51,6 +54,31 @@ def visit_site(site):
         info['https_support'] = driver.page_source != '<html><head></head><body></body></html>'
     else:
         info['https_support'] = 'Privacy error' not in driver.title  # Chrome ssl error page
+
+    info['has_banner'] = driver.execute_script(f"""
+    const selectors = {str(cookie_selectors)};
+    let hasBanner = false;
+    for (const selector of selectors) {{
+        try {{
+            element = document.querySelector(selector.split('##')[1]);
+            if (element) {{
+                hasBanner = true;
+            }}
+        }} catch (_) {{
+            // Ignore errors
+        }}
+    }}
+    return hasBanner;
+    """)
+
+    xpaths = [
+        "//*[contains(text(), 'cookie')]",
+        "//*[contains(text(), 'Cookie')]",
+        "//*[contains(text(), 'COOKIE')]"
+    ]
+    for xpath in xpaths:
+        cookie_elements = driver.find_elements(By.XPATH, xpath)
+        info['has_banner'] = info['has_banner'] or len(cookie_elements) > 0
 
     driver.close()
 

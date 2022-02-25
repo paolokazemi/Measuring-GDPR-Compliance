@@ -22,6 +22,7 @@ def getStatistics(result):
     return {
         'redirect_https': result['redirect_https'],
         'https_support': result['https_support'],
+        'has_banner': result['has_banner'],
         'cookies': len(result['cookies']),
         'first_party': len([c for c in result['cookies'] if not c['third_party']]),
         'third_party': len([c for c in result['cookies'] if c['third_party']]),
@@ -42,6 +43,7 @@ stats = [getStatistics(result) for result in results]
 
 print(f'HTTP to HTTPS redirects: {getAvg([r["redirect_https"] for r in stats], 4) * 100}%')
 print(f'HTTPS support: {getAvg([r["https_support"] for r in stats], 4) * 100}%')
+print(f'Banner or popup: {getAvg([r["has_banner"] for r in stats], 4) * 100}%')
 print()
 print(f'No cookies set: {getAvg([r["cookies"] == 0 for r in stats]) * 100}%')
 print(f'Average cookies set: {getAvg([r["cookies"] for r in stats])}')

@@ -1,3 +1,4 @@
+from dns_resolver import resolve_cname
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -24,6 +25,14 @@ def setup_driver(url):
     return driver, info
 
 
+def is_tracker(ext, trackers):
+    return (
+            ext.fqdn in trackers
+        or  ext.registered_domain in trackers
+        or (ext.subdomain and f'{ext.subdomain.split(".")[-1]}.{ext.domain}.{ext.suffix}' in trackers)  # 3 levels
+    )
+
+
 def run_analysis(driver, info):
     with open('../data/cookie_check_trackers.txt', 'r') as trackers_file, \
          open('../data/fanboy_cookie_selectors.txt', 'r') as selectors_file:
@@ -38,11 +47,14 @@ def run_analysis(driver, info):
         cookie['third_party'] = not (ext.domain == siteInfo.domain and ext.suffix == siteInfo.suffix)
         cookie['duration'] = cookie['expiry'] - info['current_ts'] if 'expiry' in cookie else 0
         cookie['persistent'] = cookie['duration'] > ONE_MONTH  # CookieCheck
-        cookie['tracker'] = (
-                cookie['domain'] in trackers
-            or  f'{ext.domain}.{ext.suffix}' in trackers
-            or (ext.subdomain and f'{ext.subdomain.split(".")[-1]}.{ext.domain}.{ext.suffix}' in trackers)  # 3 levels
-        )
+        cookie['tracker'] = is_tracker(ext, trackers)
+
+        if resolved_domain := resolve_cname(ext.fqdn):
+            cookie['cloaked_domain'] = {
+                'resolved_domain': resolved_domain,
+                'tracker': is_tracker(tldextract.extract(resolved_domain), trackers),
+            }
+
         info['cookies'].append(cookie)
 
     info['has_banner'] = driver.execute_script(f"""

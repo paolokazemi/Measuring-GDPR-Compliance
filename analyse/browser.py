@@ -1,12 +1,18 @@
 from dns_resolver import resolve_cname
+from google_search import get_first_result
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import WebDriverException
 import time
 import tldextract
+import re
 
 
-ONE_MONTH = 60 * 60 * 24 * 30
+MINUTE = 60
+HOUR = 60 * MINUTE
+DAY = 24 * HOUR
+MONTH = 30 * DAY
 HEADLESS = True
 
 
@@ -17,7 +23,23 @@ def setup_driver(url):
     driver = webdriver.Chrome(options=chrome_options)
 
     info = {'current_ts': time.time(), 'site': url, 'cookies': [] }
-    driver.get(url)
+    try:
+        driver.get(url)
+    except WebDriverException as e:
+        msg = re.split('\n|:', e.msg)
+        error = msg[3] if len(msg) > 3 else 'ERR_GENERIC'
+
+        possible_url = get_first_result(driver, url)
+        if possible_url is None:
+            raise Exception('Site inaccessible with no google results.')
+
+        info['error'] = {'url': url, 'msg': error }
+        info['site'] = possible_url
+
+        # Restart driver with newly found url
+        driver.close()
+        driver = webdriver.Chrome(options=chrome_options)
+        driver.get(possible_url)
 
     # Waiting for 1s so JS should be done running
     time.sleep(1)
@@ -46,7 +68,7 @@ def run_analysis(driver, info):
         ext = tldextract.extract(cookie['domain'])
         cookie['third_party'] = not (ext.domain == siteInfo.domain and ext.suffix == siteInfo.suffix)
         cookie['duration'] = cookie['expiry'] - info['current_ts'] if 'expiry' in cookie else 0
-        cookie['persistent'] = cookie['duration'] > ONE_MONTH  # CookieCheck
+        cookie['persistent'] = cookie['duration'] > MONTH  # CookieCheck
         cookie['tracker'] = is_tracker(ext, trackers)
 
         if resolved_domain := resolve_cname(ext.fqdn):
@@ -81,6 +103,11 @@ def run_analysis(driver, info):
     for xpath in xpaths:
         cookie_elements = driver.find_elements(By.XPATH, xpath)
         info['has_banner'] = info['has_banner'] or len(cookie_elements) > 0
+
+    session_cookies = len([c for c in cookies if c['duration'] < HOUR])
+    info['gdpr_compliant'] = 'yes' if len(cookies) == 0 else (
+        'maybe' if len(cookies) == session_cookies else 'no'
+    )
 
 
 def visit_site(site):

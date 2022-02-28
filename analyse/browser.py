@@ -1,9 +1,12 @@
 from dns_resolver import resolve_cname
+from google_search import get_first_result
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import WebDriverException
 import time
 import tldextract
+import re
 
 
 ONE_MONTH = 60 * 60 * 24 * 30
@@ -17,7 +20,23 @@ def setup_driver(url):
     driver = webdriver.Chrome(options=chrome_options)
 
     info = {'current_ts': time.time(), 'site': url, 'cookies': [] }
-    driver.get(url)
+    try:
+        driver.get(url)
+    except WebDriverException as e:
+        msg = re.split('\n|:', e.msg)
+        error = msg[3] if len(msg) > 3 else 'ERR_GENERIC'
+
+        possible_url = get_first_result(driver, url)
+        if possible_url is None:
+            raise Exception('Site inaccessible with no google results.')
+
+        info['error'] = {'url': url, 'msg': error }
+        info['site'] = possible_url
+
+        # Restart driver with newly found url
+        driver.close()
+        driver = webdriver.Chrome(options=chrome_options)
+        driver.get(possible_url)
 
     # Waiting for 1s so JS should be done running
     time.sleep(1)

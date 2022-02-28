@@ -9,7 +9,10 @@ import tldextract
 import re
 
 
-ONE_MONTH = 60 * 60 * 24 * 30
+MINUTE = 60
+HOUR = 60 * MINUTE
+DAY = 24 * HOUR
+MONTH = 30 * DAY
 HEADLESS = True
 
 
@@ -65,7 +68,7 @@ def run_analysis(driver, info):
         ext = tldextract.extract(cookie['domain'])
         cookie['third_party'] = not (ext.domain == siteInfo.domain and ext.suffix == siteInfo.suffix)
         cookie['duration'] = cookie['expiry'] - info['current_ts'] if 'expiry' in cookie else 0
-        cookie['persistent'] = cookie['duration'] > ONE_MONTH  # CookieCheck
+        cookie['persistent'] = cookie['duration'] > MONTH  # CookieCheck
         cookie['tracker'] = is_tracker(ext, trackers)
 
         if resolved_domain := resolve_cname(ext.fqdn):
@@ -100,6 +103,11 @@ def run_analysis(driver, info):
     for xpath in xpaths:
         cookie_elements = driver.find_elements(By.XPATH, xpath)
         info['has_banner'] = info['has_banner'] or len(cookie_elements) > 0
+
+    session_cookies = len([c for c in cookies if c['duration'] < HOUR])
+    info['gdpr_compliant'] = 'yes' if len(cookies) == 0 else (
+        'maybe' if len(cookies) == session_cookies else 'no'
+    )
 
 
 def visit_site(site):

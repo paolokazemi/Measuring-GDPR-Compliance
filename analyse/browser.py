@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
+from pathlib import Path
 import time
 import tldextract
 import re
@@ -56,8 +57,8 @@ def is_tracker(ext, trackers):
 
 
 def run_analysis(driver, info):
-    with open('../data/cookie_check_trackers.txt', 'r') as trackers_file, \
-         open('../data/fanboy_cookie_selectors.txt', 'r') as selectors_file:
+    with open(Path(__file__).parent / '../data/cookie_check_trackers.txt') as trackers_file, \
+         open(Path(__file__).parent / '../data/fanboy_cookie_selectors.txt') as selectors_file:
         trackers = [line.strip() for line in trackers_file.readlines()]
         cookie_selectors = [line.strip() for line in selectors_file.readlines()]
 

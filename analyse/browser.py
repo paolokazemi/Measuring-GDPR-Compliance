@@ -1,5 +1,5 @@
 from dns_resolver import resolve_cname
-from google_search import get_first_result
+from google_search import get_first_result, search_google
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -8,6 +8,7 @@ from pathlib import Path
 import time
 import tldextract
 import re
+import json
 
 
 MINUTE = 60
@@ -58,9 +59,11 @@ def is_tracker(ext, trackers):
 
 def run_analysis(driver, info):
     with open(Path(__file__).parent / '../data/cookie_check_trackers.txt') as trackers_file, \
-         open(Path(__file__).parent / '../data/fanboy_cookie_selectors.txt') as selectors_file:
+         open(Path(__file__).parent / '../data/fanboy_cookie_selectors.txt') as selectors_file, \
+         open(Path(__file__).parent / '../data/privacy_wording.json') as privacy_file:
         trackers = [line.strip() for line in trackers_file.readlines()]
         cookie_selectors = [line.strip() for line in selectors_file.readlines()]
+        privacy_wording = json.load(privacy_file)
 
     siteInfo = tldextract.extract(driver.current_url)
     cookies = driver.get_cookies()
@@ -104,6 +107,30 @@ def run_analysis(driver, info):
     for xpath in xpaths:
         cookie_elements = driver.find_elements(By.XPATH, xpath)
         info['has_banner'] = info['has_banner'] or len(cookie_elements) > 0
+
+    privacy_policies = set()
+    for privacy_words in privacy_wording:
+        # Only doing NL and EN
+        if privacy_words['country'] not in ['en', 'nl']:
+            continue
+
+        for word in privacy_words['words']:
+            try:
+                privacy_policy = driver.find_element_by_xpath(f"//a [contains( text(), '{word}')]")
+                if link := privacy_policy.get_attribute('href'):
+                    privacy_policies.add(link)
+            except:
+                # Ignore errors from XPath
+                pass
+
+    info['privacy_policy'] = { 'xpath_results': list(privacy_policies) }
+    if len(privacy_policies) == 0:
+        google_results = search_google(driver, f'privacy policy site:{info["site"]}')
+        info['privacy_policy']['google_results'] = [result for result in google_results if 'privacy' in result.lower()]
+
+    info['privacy_policy']['link'] = info['privacy_policy']['xpath_results'][0] if len(privacy_policies) > 0 else (
+        info['privacy_policy']['google_results'][0] if len(info['privacy_policy']['google_results']) > 0 else 'ERROR'
+    )
 
     session_cookies = len([c for c in cookies if c['duration'] < HOUR])
     info['gdpr_compliant'] = 'yes' if len(cookies) == 0 else (

@@ -52,18 +52,28 @@ first_party_top = []
 third_party_top = []
 persistent_top = []
 tracker_top = []
-for r in stats:
-    print(r)
+different_cookies = 0
+cloaked_trackers = []
 for result in results:
     first_party_top.append([getStatistics(result)["first_party"], result["site"]])
     third_party_top.append([getStatistics(result)["third_party"], result["site"]])
     persistent_top.append([getStatistics(result)["persistent"], result["site"]])
     tracker_top.append([getStatistics(result)["tracker"], result["site"]])
+    if(result["redirect_https"] and result['https_support']):
+        if(len(result["cookies"]) != len(result['https']['cookies'])):
+            different_cookies+=1
+    cloaked_trackers.append(list())
+    for r in result["cookies"]:
+        if("cloaked_domain" in r):
+            cloaked_trackers[-1].append(r["cloaked_domain"])
 
+print()
+print(f'Analysing ' + args['input'])
 print(f'URLs analysed: {len(results)}')
 print()
 print(f'HTTP to HTTPS redirects: {getAvg([r["redirect_https"] for r in stats], 4) * 100}%')
 print(f'HTTPS support: {getAvg([r["https_support"] for r in stats], 4) * 100}%')
+print(f'Different HTTP and HTTPS cookies: {different_cookies / len([r["redirect_https"] for r in stats]) * 100}% ')
 print(f'Banner or popup: {getAvg([r["has_banner"] for r in stats], 4) * 100}%')
 print()
 print(f'No cookies set: {getAvg([r["cookies"] == 0 for r in stats]) * 100}%, '
@@ -85,10 +95,11 @@ print(f'Average tracker cookies: {getAvg([r["tracker"] for r in stats])}, '
       f'http: {getAvg([r["tracker"] for r in http_stats])}, '
       f'https: {getAvg([r["tracker"] for r in https_stats])}')
 print()
-print(f'Average session cookies: {getAvg([r["session"] for r in stats])}')
-print(f'Average hourly cookies: {getAvg([r["hour"] for r in stats])}')
-print(f'Average days cookies: {getAvg([r["day"] for r in stats])}')
-print(f'Average monthly cookies: {getAvg([r["month"] for r in stats])}')
+print(f'Average number of cookies per duration:')
+print(f'Less than one hour: {getAvg([r["session"] for r in stats])}')
+print(f'More than one hour, less than a day: {getAvg([r["hour"] for r in stats])}')
+print(f'More than one day, less than one month: {getAvg([r["day"] for r in stats])}')
+print(f'One month or more: {getAvg([r["month"] for r in stats])}')
 print()
 print('Most first party cookies:' + str(sorted(first_party_top, reverse=True)[:3]))
 print('Most third party cookies:' + str(sorted(third_party_top, reverse=True)[:3]))
@@ -104,10 +115,21 @@ f'http: {[r["gdpr_compliant"] for r in http_results].count("maybe")/len(results)
 print(f'Not GDPR compliant: {[r["gdpr_compliant"] for r in results].count("no")/len(results)*100}%'
 f'http: {[r["gdpr_compliant"] for r in http_results].count("no")/len(results)*100}%, ' \
       f'https: {[r["gdpr_compliant"] for r in https_results].count("no")/len(results)*100}%')
-
+print()
+print(f'Cloaked domains: {len([r for r in cloaked_trackers if r]) / len(results) * 100}%')
+print(f'Cloaked domains with tracker: {len([r for r in cloaked_trackers if "tracker" in r]) / len(results) * 100}%')
 
 fig = plt.figure()
+plt.xlabel("Type of cookie")
+plt.ylabel("Number of cookies")
 plt.bar(["first party", "third party", "persistent", "tracker"], [sum([r["third_party"] for r in stats]), sum([r["first_party"] for r in stats]), sum([r["persistent"] for r in stats]), sum([r["tracker"] for r in stats])])
-plt.savefig("../results/out.png")
+plt.savefig("../results/types_of_cookies.png")
+
+fig = plt.figure()
+plt.xlabel("Number of cookies")
+plt.ylabel("Number of websites")
+plt.hist(x=[r["cookies"] for r in stats], bins=30)
+plt.savefig("../results/number_of_cookies.png")
+
 
 

@@ -7,7 +7,7 @@
 - Top 50 websites for NL and Global are taken from [Alexa](https://www.alexa.com/topsites) \[0\]
 - Top 500 global websites are taken from the [Prefix Top Lists study](https://prefixtoplists.net.in.tum.de/) \[1\]
 - The list of trackers is taken from the [CookieCheck repository](https://github.com/CookieChecker/CookieCheckSourceCode) \[2\]
-- The list of cookie filters is taken from [EasyList Cookie List](https://secure.fanboy.co.nz/fanboy-cookiemonster.txt) \[3\]
+- The list of cookie filters is taken from [EasyList Cookie List](https://secure.fanboy.co.nz/fanboy-cookiemonster.txt) \[3\], parsing rules can be found on the [Adblock Plus Documentation](https://help.eyeo.com/en/adblockplus/how-to-write-filters) \[5\]
 - The privacy policy wording is taken from [Measuring the GDPR’s Impact on Web Privacy](https://github.com/RUB-SysSec/we-value-your-privacy) \[4\]
 
 ### Installation
@@ -31,3 +31,5 @@ docker build . -t measuring_gdpr
 \[3\]: Easylist. EasyList Cookie List. https://secure.fanboy.co.nz/fanboy-cookiemonster.txt, 2022.
 
 \[4\]: Degeling, Martin, et al. "We value your privacy... now take some cookies: Measuring the GDPR's impact on web privacy." arXiv preprint arXiv:1808.05096 (2018).
+
+\[5\]: eyeo GmbH. How to write filters | Adblock Plus Help Center. https://help.eyeo.com/en/adblockplus/how-to-write-filters, 2022.

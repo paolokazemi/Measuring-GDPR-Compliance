@@ -83,12 +83,39 @@ def run_analysis(driver, info):
 
         info['cookies'].append(cookie)
 
+    parsed_selectors = set()
+    remove_selectors = set()
+
+    for cookie_selector in cookie_selectors:
+        if cookie_selector.startswith('!'):
+            # Ignore comments
+            continue
+
+        elif cookie_selector.startswith('##'):
+            parsed_selectors.add(cookie_selector.split('##')[1])
+
+        elif '##' in cookie_selector:
+            [domains, selector] = cookie_selector.split('##')
+            if siteInfo.registered_domain in domains.split(','):
+                parsed_selectors.add(selector)
+
+        elif '#@#' in cookie_selector:
+            [domains, selector] = cookie_selector.split('#@#')
+            if siteInfo.registered_domain in domains.split(','):
+                remove_selectors.add(selector)
+
+        # TODO: Add support for #?#
+
+    parsed_selectors = list(parsed_selectors - remove_selectors)
+
+    # TODO: Check network requests
+
     info['has_banner'] = driver.execute_script(f"""
-    const selectors = {str(cookie_selectors)};
+    const selectors = {str(parsed_selectors)};
     let hasBanner = false;
     for (const selector of selectors) {{
         try {{
-            element = document.querySelector(selector.split('##')[1]);
+            element = document.querySelector(selector);
             if (element) {{
                 hasBanner = true;
             }}
@@ -98,15 +125,6 @@ def run_analysis(driver, info):
     }}
     return hasBanner;
     """)
-
-    xpaths = [
-        "//*[contains(text(), 'cookie')]",
-        "//*[contains(text(), 'Cookie')]",
-        "//*[contains(text(), 'COOKIE')]"
-    ]
-    for xpath in xpaths:
-        cookie_elements = driver.find_elements(By.XPATH, xpath)
-        info['has_banner'] = info['has_banner'] or len(cookie_elements) > 0
 
     privacy_policies = set()
     for privacy_words in privacy_wording:

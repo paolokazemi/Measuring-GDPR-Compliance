@@ -85,6 +85,7 @@ def run_analysis(driver, info):
 
     parsed_selectors = set()
     remove_selectors = set()
+    parsed_in_url = set()
 
     for cookie_selector in cookie_selectors:
         if cookie_selector.startswith('!'):
@@ -93,6 +94,17 @@ def run_analysis(driver, info):
 
         elif cookie_selector.startswith('##'):
             parsed_selectors.add(cookie_selector.split('##')[1])
+
+        elif cookie_selector.startswith('||'):
+            parsed_in_url.add(cookie_selector)
+
+        elif cookie_selector.startswith('@@||'):
+            # TODO: Add support for exceptions
+            pass
+
+        elif cookie_selector.startswith('@@'):
+            # TODO: Add support for exceptions
+            pass
 
         elif '##' in cookie_selector:
             [domains, selector] = cookie_selector.split('##')
@@ -104,11 +116,14 @@ def run_analysis(driver, info):
             if siteInfo.registered_domain in domains.split(','):
                 remove_selectors.add(selector)
 
-        # TODO: Add support for #?#
+        elif '#?#' in cookie_selector:
+            # TODO: Add support for #?#
+            pass
+
+        else:
+            parsed_in_url.add(cookie_selector)
 
     parsed_selectors = list(parsed_selectors - remove_selectors)
-
-    # TODO: Check network requests
 
     info['has_banner'] = driver.execute_script(f"""
     const selectors = {str(parsed_selectors)};
@@ -125,6 +140,25 @@ def run_analysis(driver, info):
     }}
     return hasBanner;
     """)
+
+    network_requests = driver.execute_script("""
+    var performance = window.performance || window.mozPerformance || window.msPerformance || window.webkitPerformance || {};
+    var network = performance.getEntries() || {};
+    return network;
+    """)
+    parsed_urls = [req['name'] for req in network_requests if 'name' in req]
+
+    for url in parsed_urls:
+        if '://' in url and (url.startswith('http://') or url.startswith('https://')):
+            url = url[8 if url.startswith('https') else 7:]
+
+        for fragment in parsed_in_url:
+            if '$' in fragment or '^' in fragment:
+                # Advanced options are not implemented
+                continue
+
+            if fragment in url:
+                info['has_banner'] = True
 
     privacy_policies = set()
     for privacy_words in privacy_wording:

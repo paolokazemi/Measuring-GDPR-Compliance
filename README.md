@@ -1,7 +1,17 @@
 # Measuring GDPR Compliance
 
 ### Description
+This tool can be used to scan a list of domain names and detect whether they are following GDPR guidelines. For each website, a browser session is simulated and the following information collected:
+- Cookies that are set along with their duration, origin, and whether they are persistent/trackers/third party
+- If the cookie is from a subdomain, CNAME DNS resolution is checked to detect cloaking
+- Whether the site automatically redirects from HTTP to HTTPS
+- HTTPS support
+- Whether a cookie banner is present or not
+- Link to the privacy policy of the site (if it exists)
+- Possible differences between the HTTP and HTTPS versions
+- Whether the site is GDPR compliant or not
 
+All collected information is stored to an output json file and the results script can be used to analyse it, the plots are saved to the `results` folder.
 
 ### Dataset
 - Top 50 websites for NL and Global are taken from [Alexa](https://www.alexa.com/topsites) \[0\]
@@ -11,7 +21,7 @@
 - The privacy policy wording is taken from [Measuring the GDPR’s Impact on Web Privacy](https://github.com/RUB-SysSec/we-value-your-privacy) \[4\]
 
 ### Installation
-[Google Chrome](https://www.google.com/chrome/), [Chromedriver](https://chromedriver.chromium.org/), and [Python3](https://www.python.org/) should be installed on the system. The necessary packages are found in the `analyse/requirements.txt` file and can be installed using [pip](https://github.com/pypa/pip):
+[Google Chrome](https://www.google.com/chrome/), [Chromedriver](https://chromedriver.chromium.org/), and [Python3](https://www.python.org/) should be installed on the system. The necessary packages can be found in the `analyse/requirements.txt` file and installed using [pip](https://github.com/pypa/pip):
 ```bash
 pip3 install -r analyse/requirements.txt
 ```
@@ -19,6 +29,16 @@ pip3 install -r analyse/requirements.txt
 Alternatively the provided docker configuration can be used, to build the container run:
 ```bash
 docker build . -t measuring_gdpr
+```
+
+### Usage
+To start scanning, make sure a file containing the domain names is present on the system and then run the following command:
+```
+python3 app.py -i <domain_names.txt> -o <output_file.json>
+```
+Once finished, the statistics can be generated with the results script:
+```
+python3 results.py -i <output_file.json>
 ```
 
 ### References

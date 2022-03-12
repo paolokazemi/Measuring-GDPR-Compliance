@@ -1,5 +1,8 @@
 # Measuring GDPR Compliance
 
+![Linter](https://github.com/paolokazemi/Measuring-GDPR-Compliance/actions/workflows/linter.yml/badge.svg)
+![Docker Image](https://github.com/paolokazemi/Measuring-GDPR-Compliance/actions/workflows/docker.yml/badge.svg)
+
 ### Description
 This tool can be used to scan a list of domain names and detect whether they are following GDPR guidelines. For each website, a browser session is simulated and the following information collected:
 - Cookies that are set along with their duration, origin, and whether they are persistent/trackers/third party
@@ -19,6 +22,7 @@ All collected information is stored to an output json file and the results scrip
 - The list of trackers is taken from the [CookieCheck repository](https://github.com/CookieChecker/CookieCheckSourceCode) \[2\]
 - The list of cookie filters is taken from [EasyList Cookie List](https://secure.fanboy.co.nz/fanboy-cookiemonster.txt) \[3\], parsing rules can be found on the [Adblock Plus Documentation](https://help.eyeo.com/en/adblockplus/how-to-write-filters) \[5\]
 - The privacy policy wording is taken from [Measuring the GDPR’s Impact on Web Privacy](https://github.com/RUB-SysSec/we-value-your-privacy) \[4\]
+- The processed easylist containing only tracker domain names is taken from [DOMAIN-ONLY Filter Lists](https://github.com/justdomains/blocklists) \[6\]
 
 ### Installation
 [Google Chrome](https://www.google.com/chrome/), [Chromedriver](https://chromedriver.chromium.org/), and [Python3](https://www.python.org/) should be installed on the system. The necessary packages can be found in the `analyse/requirements.txt` file and installed using [pip](https://github.com/pypa/pip):
@@ -28,7 +32,15 @@ pip3 install -r analyse/requirements.txt
 
 Alternatively the provided docker configuration can be used, to build the container run:
 ```bash
-docker build . -t measuring_gdpr
+docker-compose build
+```
+Then start it using:
+```bash
+docker-compose up -d
+```
+To get a shell inside the docker container run:
+```bash
+docker exec -ti measuring_gdpr bash
 ```
 
 ### Usage
@@ -53,3 +65,5 @@ python3 results.py -i <output_file.json>
 \[4\]: Degeling, Martin, et al. "We value your privacy... now take some cookies: Measuring the GDPR's impact on web privacy." arXiv preprint arXiv:1808.05096 (2018).
 
 \[5\]: eyeo GmbH. How to write filters | Adblock Plus Help Center. https://help.eyeo.com/en/adblockplus/how-to-write-filters, 2022.
+
+\[6\]: Justdomains. Domain-ONLY Filter Lists. https://github.com/justdomains/blocklists, 2022.

@@ -12,5 +12,5 @@ def resolve_cname(domain):
     try:
         answers = RESOLVER.resolve(domain, 'CNAME')
         return str(answers[0]) if len(answers) > 0 else None
-    except:
+    except Exception:
         return None

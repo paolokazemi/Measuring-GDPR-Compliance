@@ -23,10 +23,16 @@ def setup_driver(url):
     try:
         driver.get(url)
     except WebDriverException as e:
+        if 'www.' not in url:
+            driver.close()
+            [proto, domain] = url.split('://')
+            return setup_driver(f'{proto}://www.{domain}')
+
         msg = re.split('\n|:', e.msg)
         error = msg[3] if len(msg) > 3 else 'ERR_GENERIC'
 
         possible_url = get_first_result(driver, url)
+        driver.close()
         if possible_url is None:
             raise Exception('Site inaccessible with no google results.')
 
@@ -34,7 +40,6 @@ def setup_driver(url):
         info['site'] = possible_url
 
         # Restart driver with newly found url
-        driver.close()
         driver = webdriver.Chrome(options=chrome_options)
         driver.get(possible_url)
 

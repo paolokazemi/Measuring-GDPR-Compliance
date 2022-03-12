@@ -1,6 +1,7 @@
 # Measuring GDPR Compliance
 
 ![Linter](https://github.com/paolokazemi/Measuring-GDPR-Compliance/actions/workflows/linter.yml/badge.svg)
+![Docker Image](https://github.com/paolokazemi/Measuring-GDPR-Compliance/actions/workflows/docker.yml/badge.svg)
 
 ### Description
 This tool can be used to scan a list of domain names and detect whether they are following GDPR guidelines. For each website, a browser session is simulated and the following information collected:

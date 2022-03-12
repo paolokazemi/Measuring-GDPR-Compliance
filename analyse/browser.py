@@ -1,5 +1,6 @@
 from constants import HEADLESS, COOKIE_CHECK_LIST, \
-    SELECTORS_LIST, PRIVACY_WORD_LIST, MONTH, HOUR
+    SELECTORS_LIST, PRIVACY_WORD_LIST, MONTH, HOUR, \
+    EASYLIST_DOMAINS, EASYPRIVACY_DOMAINS
 from dns_resolver import resolve_cname
 from google_search import get_first_result, search_google
 from selenium import webdriver
@@ -59,8 +60,12 @@ def is_tracker(ext, trackers):
 def run_analysis(driver, info):
     with open(Path(__file__).parent / COOKIE_CHECK_LIST) as trackers_file, \
             open(Path(__file__).parent / SELECTORS_LIST) as selectors_file, \
-            open(Path(__file__).parent / PRIVACY_WORD_LIST) as privacy_file:
-        trackers = [line.strip() for line in trackers_file.readlines()]
+            open(Path(__file__).parent / PRIVACY_WORD_LIST) as privacy_file, \
+            open(Path(__file__).parent / EASYLIST_DOMAINS) as elist_file, \
+            open(Path(__file__).parent / EASYPRIVACY_DOMAINS) as eprivacy_file:
+        trackers = [line.strip() for line in trackers_file.readlines()] \
+            + [line.strip() for line in elist_file.readlines()] \
+            + [line.strip() for line in eprivacy_file.readlines()]
         cookie_selectors = [line.strip()
                             for line in selectors_file.readlines()]
         privacy_wording = json.load(privacy_file)

@@ -32,7 +32,15 @@ pip3 install -r analyse/requirements.txt
 
 Alternatively the provided docker configuration can be used, to build the container run:
 ```bash
-docker build . -t measuring_gdpr
+docker-compose build
+```
+Then start it using:
+```bash
+docker-compose up -d
+```
+To get a shell inside the docker container run:
+```bash
+docker exec -ti measuring_gdpr bash
 ```
 
 ### Usage

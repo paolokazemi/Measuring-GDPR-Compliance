@@ -88,12 +88,14 @@ def run_analysis(driver, info):
         cookie['tracker'] = is_tracker(ext, trackers)
 
         if resolved_domain := resolve_cname(ext.fqdn):
+            cloaked_tracker = False
+            for domain in resolved_domain:
+                if is_tracker(tldextract.extract(domain), trackers):
+                    cloaked_tracker = True
+
             cookie['cloaked_domain'] = {
                 'resolved_domain': resolved_domain,
-                'tracker': is_tracker(
-                    tldextract.extract(resolved_domain),
-                    trackers
-                ),
+                'tracker': cloaked_tracker,
             }
 
         info['cookies'].append(cookie)

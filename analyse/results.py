@@ -118,7 +118,8 @@ for result in results:
 
     cloaked_trackers.append(list())
     for r in result["cookies"]:
-        if "cloaked_domain" in r and len(r["cloaked_domain"]["resolved_domain"]) > 1:
+        if ("cloaked_domain" in r
+                and len(r["cloaked_domain"]["resolved_domain"]) > 1):
             cloaked_trackers[-1].append(r["cloaked_domain"])
 
 differences_http_https = [

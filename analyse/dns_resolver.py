@@ -9,8 +9,13 @@ RESOLVER.nameservers = [
 
 
 def resolve_cname(domain):
-    try:
-        answers = RESOLVER.resolve(domain, 'CNAME')
-        return str(answers[0]) if len(answers) > 0 else None
-    except Exception:
-        return None
+    answers = [domain]
+    while True:
+        try:
+            domains = RESOLVER.resolve(answers[-1], 'CNAME')
+            if len(domains) > 0:
+                answers.append(str(domains[0]))
+            else:
+                return answers
+        except Exception:
+            return answers

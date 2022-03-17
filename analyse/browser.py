@@ -177,6 +177,26 @@ def run_analysis(driver, info):
             if fragment in url:
                 info['has_banner'] = True
 
+    gdpr_references = set()
+    try:
+        gdpr_ref = driver.find_element_by_xpath(f"//* [contains( text(), 'GDPR')]")
+        if link := gdpr_ref.get_attribute('href'):
+            gdpr_references.add(link)
+    except Exception:
+        # Ignore errors from XPath
+        pass    
+
+    info['gdpr_ref'] = {
+        'xpath_results': list(gdpr_references),
+        'google_results': []
+    }
+
+    if len(gdpr_references) == 0:
+        google_results = search_google(
+            driver, f'gdpr site:{info["site"]}')
+        info['gdpr_ref']['google_results'] = [
+            result for result in google_results if 'gdpr' in result.lower()]
+
     privacy_policies = set()
     for privacy_words in privacy_wording:
         # Only doing NL and EN
@@ -197,6 +217,7 @@ def run_analysis(driver, info):
         'xpath_results': list(privacy_policies),
         'google_results': []
     }
+
     if len(privacy_policies) == 0:
         google_results = search_google(
             driver, f'privacy policy site:{info["site"]}')

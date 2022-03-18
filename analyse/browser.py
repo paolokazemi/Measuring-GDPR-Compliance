@@ -3,6 +3,7 @@ from constants import HEADLESS, COOKIE_CHECK_LIST, \
     EASYLIST_DOMAINS, EASYPRIVACY_DOMAINS
 from dns_resolver import resolve_cname
 from google_search import get_first_result, search_google
+from gdpr_reference import gdpr_search
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
@@ -178,27 +179,8 @@ def run_analysis(driver, info):
 
             if fragment in url:
                 info['has_banner'] = True
-
-    gdpr_references = set()
-    try:
-        gdpr_ref = driver.find_element_by_xpath(f"//* [contains( text(), 'GDPR')]")
-        if link := gdpr_ref.get_attribute('href'):
-            gdpr_references.add(link)
-    except Exception:
-        # Ignore errors from XPath
-        pass    
-
-    info['gdpr_ref'] = {
-        'xpath_results': list(gdpr_references),
-        'google_results': []
-    }
-
-    if len(gdpr_references) == 0:
-        google_results = search_google(
-            driver, f'gdpr site:{info["site"]}')
-        info['gdpr_ref']['google_results'] = [
-            result for result in google_results if 'gdpr' in result.lower()]
-
+    
+    gdpr_references = 0
     privacy_policies = set()
     for privacy_words in privacy_wording:
         # Only doing NL and EN
@@ -210,7 +192,10 @@ def run_analysis(driver, info):
                 privacy_policy = driver.find_element_by_xpath(
                     f"//a [contains( text(), '{word}')]")
                 if link := privacy_policy.get_attribute('href'):
-                    privacy_policies.add(link)
+                    privacy_policies.add(link) 
+                    if gdpr_search(driver, link):
+                        gdpr_references = 1
+
             except Exception:
                 # Ignore errors from XPath
                 pass
@@ -239,7 +224,20 @@ def run_analysis(driver, info):
     info['gdpr_compliant'] = 'yes' if len(cookies) == 0 else (
         'maybe' if len(cookies) == session_cookies else 'no'
     )
+    
+    info['gdpr_ref'] = {
+        'gdpr_reference_present': '',
+        'google_results': []
+    }
 
+    if gdpr_references == 1:
+        info['gdpr_ref']['gdpr_reference_present'] = 'yes'
+    elif gdpr_references == 0:
+        info['gdpr_ref']['gdpr_reference_present'] = 'no'
+        google_results = search_google(
+            driver, f'gdpr site:{info["site"]}')
+        info['gdpr_ref']['google_results'] = [
+            result for result in google_results if 'gdpr' in result.lower()]
 
 def visit_site(site):
     driver, info = setup_driver(f'http://{site}')

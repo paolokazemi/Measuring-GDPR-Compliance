@@ -193,9 +193,6 @@ def run_analysis(driver, info):
                     f"//a [contains( text(), '{word}')]")
                 if link := privacy_policy.get_attribute('href'):
                     privacy_policies.add(link) 
-                    if gdpr_search(driver, link):
-                        gdpr_references = 1
-
             except Exception:
                 # Ignore errors from XPath
                 pass
@@ -225,19 +222,27 @@ def run_analysis(driver, info):
         'maybe' if len(cookies) == session_cookies else 'no'
     )
     
+    if info['privacy_policy']['link'] != 'ERROR':
+        if gdpr_search(driver, info['privacy_policy']['link']):
+            gdpr_references = 1
+    
     info['gdpr_ref'] = {
         'gdpr_reference_present': '',
         'google_results': []
     }
 
-    if gdpr_references == 1:
-        info['gdpr_ref']['gdpr_reference_present'] = 'yes'
-    elif gdpr_references == 0:
+    if gdpr_references == 0:
         info['gdpr_ref']['gdpr_reference_present'] = 'no'
         google_results = search_google(
             driver, f'gdpr site:{info["site"]}')
         info['gdpr_ref']['google_results'] = [
             result for result in google_results if 'gdpr' in result.lower()]
+    
+    if info['gdpr_ref']['google_results'] != []:
+        gdpr_references = 1
+
+    if gdpr_references == 1:
+        info['gdpr_ref']['gdpr_reference_present'] = 'yes'
 
 def visit_site(site):
     driver, info = setup_driver(f'http://{site}')

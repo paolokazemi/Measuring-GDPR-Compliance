@@ -11,5 +11,4 @@ def gdpr_search(driver, link):
         if word in page:
             return True
     return False
-
-        
+   

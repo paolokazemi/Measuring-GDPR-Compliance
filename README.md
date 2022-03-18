@@ -23,6 +23,7 @@ All collected information is stored to an output json file and the results scrip
 - The list of cookie filters is taken from [EasyList Cookie List](https://secure.fanboy.co.nz/fanboy-cookiemonster.txt) \[3\], parsing rules can be found on the [Adblock Plus Documentation](https://help.eyeo.com/en/adblockplus/how-to-write-filters) \[5\]
 - The privacy policy wording is taken from [Measuring the GDPR’s Impact on Web Privacy](https://github.com/RUB-SysSec/we-value-your-privacy) \[4\]
 - The processed easylist containing only tracker domain names is taken from [DOMAIN-ONLY Filter Lists](https://github.com/justdomains/blocklists) \[6\]
+- Additional tracker lists are taken from [shavar-prod-lists](https://github.com/disconnectme/shavar-prod-lists) \[7\]
 
 ### Installation
 [Google Chrome](https://www.google.com/chrome/), [Chromedriver](https://chromedriver.chromium.org/), and [Python3](https://www.python.org/) should be installed on the system. The necessary packages can be found in the `analyse/requirements.txt` file and installed using [pip](https://github.com/pypa/pip):
@@ -67,3 +68,5 @@ python3 results.py -i <output_file.json>
 \[5\]: eyeo GmbH. How to write filters | Adblock Plus Help Center. https://help.eyeo.com/en/adblockplus/how-to-write-filters, 2022.
 
 \[6\]: Justdomains. Domain-ONLY Filter Lists. https://github.com/justdomains/blocklists, 2022.
+
+\[7\]: Disconnect Inc. shavar-prod-lists. https://github.com/disconnectme/shavar-prod-lists, 2022.

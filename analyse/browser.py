@@ -3,6 +3,7 @@ from constants import HEADLESS, COOKIE_CHECK_LIST, \
     ELIST_DOMAINS, EPRIVACY_DOMAINS, DISCONNECT_LIST
 from dns_resolver import resolve_cname
 from google_search import get_first_result, search_google
+from gdpr_reference import gdpr_search
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.common.exceptions import WebDriverException
@@ -189,6 +190,7 @@ def run_analysis(driver, info):
             if fragment in url:
                 info['has_banner'] = True
 
+    gdpr_references = 0
     privacy_policies = set()
     for privacy_words in privacy_wording:
         # Only doing NL and EN
@@ -209,6 +211,7 @@ def run_analysis(driver, info):
         'xpath_results': list(privacy_policies),
         'google_results': []
     }
+
     if len(privacy_policies) == 0:
         google_results = search_google(
             driver, f'privacy policy site:{info["site"]}')
@@ -228,6 +231,28 @@ def run_analysis(driver, info):
     info['gdpr_compliant'] = 'yes' if len(cookies) == 0 else (
         'maybe' if len(cookies) == session_cookies else 'no'
     )
+
+    if info['privacy_policy']['link'] != 'ERROR':
+        if gdpr_search(driver, info['privacy_policy']['link']):
+            gdpr_references = 1
+
+    info['gdpr_ref'] = {
+        'gdpr_reference_present': '',
+        'google_results': []
+    }
+
+    if gdpr_references == 0:
+        info['gdpr_ref']['gdpr_reference_present'] = 'no'
+        google_results = search_google(
+            driver, f'gdpr site:{info["site"]}')
+        info['gdpr_ref']['google_results'] = [
+            result for result in google_results if 'gdpr' in result.lower()]
+
+    if info['gdpr_ref']['google_results'] != []:
+        gdpr_references = 1
+
+    if gdpr_references == 1:
+        info['gdpr_ref']['gdpr_reference_present'] = 'yes'
 
 
 def visit_site(site):

@@ -1,6 +1,6 @@
 from constants import HEADLESS, COOKIE_CHECK_LIST, \
     SELECTORS_LIST, PRIVACY_WORD_LIST, MONTH, HOUR, \
-    EASYLIST_DOMAINS, EASYPRIVACY_DOMAINS
+    ELIST_DOMAINS, EPRIVACY_DOMAINS, DISCONNECT_LIST
 from dns_resolver import resolve_cname
 from google_search import get_first_result, search_google
 from gdpr_reference import gdpr_search
@@ -67,14 +67,24 @@ def run_analysis(driver, info):
     with open(Path(__file__).parent / COOKIE_CHECK_LIST) as trackers_file, \
             open(Path(__file__).parent / SELECTORS_LIST) as selectors_file, \
             open(Path(__file__).parent / PRIVACY_WORD_LIST) as privacy_file, \
-            open(Path(__file__).parent / EASYLIST_DOMAINS) as elist_file, \
-            open(Path(__file__).parent / EASYPRIVACY_DOMAINS) as eprivacy_file:
+            open(Path(__file__).parent / ELIST_DOMAINS) as elist_file, \
+            open(Path(__file__).parent / EPRIVACY_DOMAINS) as eprivacy_file, \
+            open(Path(__file__).parent / DISCONNECT_LIST) as disconnect_file:
         trackers = [line.strip() for line in trackers_file.readlines()] \
             + [line.strip() for line in elist_file.readlines()] \
             + [line.strip() for line in eprivacy_file.readlines()]
         cookie_selectors = [line.strip()
                             for line in selectors_file.readlines()]
         privacy_wording = json.load(privacy_file)
+        disconnect_json = json.load(disconnect_file)['categories']
+
+        # Parsing disconnect.me file
+        for _, categories in disconnect_json.items():
+            for category in categories:
+                for _, site in category.items():
+                    for _, domains in site.items():
+                        if type(domains) == list:
+                            trackers += domains
 
     siteInfo = tldextract.extract(driver.current_url)
     cookies = driver.get_cookies()

@@ -169,37 +169,38 @@ print(
 print(f'One month or more: {getAvg(map(stats, "month"))}')
 print()
 print(
-    f'Top 3 first party cookies:\n'
-    f'{getStrList(sorted(first_party_top, reverse=True)[:3])}'
+    f'Top 5 first party cookies:\n'
+    f'{getStrList(sorted(first_party_top, reverse=True)[:5])}'
 )
 print(
-    f'Top 3 third party cookies:\n'
-    f'{getStrList(sorted(third_party_top, reverse=True)[:3])}'
+    f'Top 5 third party cookies:\n'
+    f'{getStrList(sorted(third_party_top, reverse=True)[:5])}'
 )
 print(
-    f'Top 3 persistent cookies:\n'
-    f'{getStrList(sorted(persistent_top, reverse=True)[:3])}'
+    f'Top 5 persistent cookies:\n'
+    f'{getStrList(sorted(persistent_top, reverse=True)[:5])}'
 )
 print(
-    f'Top 3 tracker cookies:\n'
-    f'{getStrList(sorted(tracker_top, reverse=True)[:3])}'
+    f'Top 5 tracker cookies:\n'
+    f'{getStrList(sorted(tracker_top, reverse=True)[:5])}'
 )
 print()
 print(f'Privacy policies found: {getPerc(map(stats, "privacy_found"))}, '
       f'xpath: {countPerc(map(stats, "privacy_source"), "xpath")}, '
       f'google: {countPerc(map(stats, "privacy_source"), "google")}')
 print()
-print(f'GDPR compliant: {countPerc(map(results, "gdpr_compliant"), "yes")}, '
-      f'http: {countPerc(map(http_results, "gdpr_compliant"), "yes")}, '
-      f'https: {countPerc(map(https_results, "gdpr_compliant"), "yes")}')
-print(f'Possibly GDPR compliant: '
+print(f'GDPR compliant*: {countPerc(map(results, "gdpr_compliant"), "yes")}, '
+        f'http: {round([r["gdpr_compliant"] for r in http_results].count("yes")/len(results)*100,2)}%, ' \
+      f'https: {round([r["gdpr_compliant"] for r in https_results].count("yes")/len(results)*100, 2)}%')
+print(f'Possibly GDPR compliant*: '
       f'{countPerc(map(results, "gdpr_compliant"), "maybe")}, '
-      f'http: {countPerc(map(http_results, "gdpr_compliant"), "maybe")}, '
-      f'https: {countPerc(map(https_results, "gdpr_compliant"), "maybe")}')
-print(f'Not GDPR compliant: '
+      f'http: {round([r["gdpr_compliant"] for r in http_results].count("maybe")/len(results)*100, 2)}%, ' \
+      f'https: {round([r["gdpr_compliant"] for r in https_results].count("maybe")/len(results)*100, 2)}%')
+print(f'Not GDPR compliant*: '
       f'{countPerc(map(results, "gdpr_compliant"), "no")}, '
-      f'http: {countPerc(map(http_results, "gdpr_compliant"), "no")}, '
-      f'https: {countPerc(map(https_results, "gdpr_compliant"), "yes")}')
+      f'http: {round([r["gdpr_compliant"] for r in http_results].count("no")/len(results)*100, 2)}%, ' \
+      f'https: {round([r["gdpr_compliant"] for r in https_results].count("no")/len(results)*100, 2)}%')
+print('* ***GDPR compliance is measured by the amount of cookies and their duration. The website is marked compliant if it has no cookies, and maybe if it has only session cookies.***')
 print()
 print(
     f'Cloaked domains: '

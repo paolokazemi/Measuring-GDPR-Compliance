@@ -3,6 +3,8 @@ from pathlib import Path
 import argparse
 import json
 import matplotlib.pyplot as plt
+import tldextract
+from collections import Counter
 
 
 parser = argparse.ArgumentParser(
@@ -66,6 +68,7 @@ def getStatistics(result):
             'google' if len(google_results) > 0 else 'none'
         ),
         'error': 'error' in result,
+        'gdpr_reference': result['gdpr_ref']['gdpr_reference_present'],
     }
 
 
@@ -88,6 +91,11 @@ def getStrList(arr):
     ])
 
 
+def countSplitPerc(arr, instance, results):
+    instances = map(arr, "gdpr_compliant").count(instance)
+    return round(instances / len(results) * 100, 2)
+
+
 stats = [getStatistics(result) for result in results]
 http_stats = [getStatistics(result)
               for result in results if not result["redirect_https"]]
@@ -103,6 +111,7 @@ third_party_top = []
 persistent_top = []
 tracker_top = []
 cloaked_trackers = []
+cloaked_domains = []
 
 for result in results:
     first_party_top.append(
@@ -121,6 +130,9 @@ for result in results:
         if ("cloaked_domain" in r
                 and len(r["cloaked_domain"]["resolved_domain"]) > 1):
             cloaked_trackers[-1].append(r["cloaked_domain"])
+            last_domain = r["cloaked_domain"]["resolved_domain"][-1]
+            ext = tldextract.extract(last_domain)
+            cloaked_domains.append(ext.registered_domain)
 
 differences_http_https = [
     len(r["cookies"]) != len(r["https"]["cookies"])
@@ -185,22 +197,25 @@ print(
     f'{getStrList(sorted(tracker_top, reverse=True)[:5])}'
 )
 print()
-print(f'Privacy policies found: {getPerc(map(stats, "privacy_found"))}, '
+print(f'Privacy policies found: {getPerc(map(stats, "privacy_found"))} '
+      f'(GDPR references {countPerc(map(stats, "gdpr_reference"), "yes")}), '
       f'xpath: {countPerc(map(stats, "privacy_source"), "xpath")}, '
       f'google: {countPerc(map(stats, "privacy_source"), "google")}')
 print()
 print(f'GDPR compliant*: {countPerc(map(results, "gdpr_compliant"), "yes")}, '
-        f'http: {round([r["gdpr_compliant"] for r in http_results].count("yes")/len(results)*100,2)}%, ' \
-      f'https: {round([r["gdpr_compliant"] for r in https_results].count("yes")/len(results)*100, 2)}%')
+      f'http: {countSplitPerc(http_results, "yes", results)}%, '
+      f'https: {countSplitPerc(https_results, "yes", results)}%')
 print(f'Possibly GDPR compliant*: '
       f'{countPerc(map(results, "gdpr_compliant"), "maybe")}, '
-      f'http: {round([r["gdpr_compliant"] for r in http_results].count("maybe")/len(results)*100, 2)}%, ' \
-      f'https: {round([r["gdpr_compliant"] for r in https_results].count("maybe")/len(results)*100, 2)}%')
+      f'http: {countSplitPerc(http_results, "maybe", results)}%, '
+      f'https: {countSplitPerc(https_results, "maybe", results)}%')
 print(f'Not GDPR compliant*: '
       f'{countPerc(map(results, "gdpr_compliant"), "no")}, '
-      f'http: {round([r["gdpr_compliant"] for r in http_results].count("no")/len(results)*100, 2)}%, ' \
-      f'https: {round([r["gdpr_compliant"] for r in https_results].count("no")/len(results)*100, 2)}%')
-print('* ***GDPR compliance is measured by the amount of cookies and their duration. The website is marked compliant if it has no cookies, and maybe if it has only session cookies.***')
+      f'http: {countSplitPerc(http_results, "no", results)}%, '
+      f'https: {countSplitPerc(https_results, "no", results)}%')
+print('* ***GDPR compliance is measured by the amount of cookies '
+      'and their duration. The website is marked compliant if it has'
+      ' no cookies, and maybe if it has only session cookies.***')
 print()
 print(
     f'Cloaked domains: '
@@ -208,6 +223,10 @@ print(
 print(
     f'Cloaked domains with tracker: '
     f'{getPerc([r for r in cloaked_trackers if "tracker" in r])}')
+print(
+    f'Top 5 cloaked domains:\n'
+    f'{getStrList([[b,a] for a,b in Counter(cloaked_domains).most_common(5)])}'
+)
 print()
 print(f'Saving plots to folder: {result_file.parent}')
 

@@ -22,7 +22,7 @@ jobs:
       - name: Build Website
         run: npm run build && npm run export && touch ./out/.nojekyll
       - name: Deploy Website
-        uses: JamesIves/github-pages-deploy-action@v4.2.5
+        uses: JamesIves/github-pages-deploy-action@v4.1.0
         with:
           BRANCH: gh-pages
-          FOLDER: isitgdprcompliant/out
+          FOLDER: out

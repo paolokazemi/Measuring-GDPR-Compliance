@@ -4,6 +4,8 @@
 ![Docker Image](https://github.com/paolokazemi/Measuring-GDPR-Compliance/actions/workflows/docker.yml/badge.svg)
 ![Website Build](https://github.com/paolokazemi/Measuring-GDPR-Compliance/actions/workflows/website.yml/badge.svg)
 
+#### [Is X GDPR Compliant?](https://isitgdprcompliant.com)
+
 ### Description
 This tool can be used to scan a list of domain names and detect whether they are following GDPR guidelines. For each website, a browser session is simulated and the following information collected:
 - Cookies that are set along with their duration, origin, and whether they are persistent/trackers/third party

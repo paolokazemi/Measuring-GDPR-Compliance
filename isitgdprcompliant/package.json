@@ -1,0 +1,34 @@
+{
+  "name": "isitgdprcompliant",
+  "version": "0.1.0",
+  "description": "Scanning the most visited websites for non-compliant implementations of GDPR.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next export"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paolokazemi/Measuring-GDPR-Compliance.git"
+  },
+  "bugs": {
+    "url": "https://github.com/paolokazemi/Measuring-GDPR-Compliance/issues"
+  },
+  "homepage": "https://github.com/paolokazemi/Measuring-GDPR-Compliance#readme",
+  "dependencies": {
+    "bootstrap": "^5.1.3",
+    "bootstrap-icons": "^1.8.1",
+    "humanize-duration": "^3.27.1",
+    "next": "12.1.0",
+    "next-seo": "^5.2.0",
+    "react": "17.0.2",
+    "react-dom": "17.0.2"
+  },
+  "devDependencies": {
+    "eslint": "8.11.0",
+    "eslint-config-next": "12.1.0"
+  }
+}

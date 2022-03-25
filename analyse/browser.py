@@ -87,14 +87,14 @@ def run_analysis(driver, info):
                             trackers += domains
 
     siteInfo = tldextract.extract(driver.current_url)
-    cookies = driver.get_cookies()
+    cookies = driver.execute_cdp_cmd('Network.getAllCookies', {})['cookies']
 
     for cookie in cookies:
         ext = tldextract.extract(cookie['domain'])
         cookie['third_party'] = not (
             ext.domain == siteInfo.domain and ext.suffix == siteInfo.suffix)
-        cookie['duration'] = cookie['expiry'] - \
-            info['current_ts'] if 'expiry' in cookie else 0
+        cookie['duration'] = max(0, cookie['expires'] - info['current_ts']) \
+            if 'expires' in cookie else 0
         cookie['persistent'] = cookie['duration'] > MONTH  # CookieCheck
         cookie['tracker'] = is_tracker(ext, trackers)
 

@@ -237,8 +237,8 @@ plt.bar(["first party",
          "third party",
          "persistent",
          "tracker"],
-        [sum([r["third_party"] for r in stats]),
-         sum([r["first_party"] for r in stats]),
+        [sum([r["first_party"] for r in stats]),
+         sum([r["third_party"] for r in stats]),
          sum([r["persistent"] for r in stats]),
          sum([r["tracker"] for r in stats])])
 plt.savefig(result_file.parent / "types_of_cookies.png")

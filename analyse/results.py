@@ -172,6 +172,11 @@ print(f'Average number of tracker cookies: '
       f'http: {getAvg(map(http_stats, "tracker"))}, '
       f'https: {getAvg(map(https_stats, "tracker"))}')
 print()
+print(f'First party cookies: {getPerc([r["first_party"] > 0 for r in stats])}')
+print(f'Third party cookies: {getPerc([r["third_party"] > 0 for r in stats])}')
+print(f'Persistent cookies: {getPerc([r["persistent"] > 0 for r in stats])}')
+print(f'Tracker cookies: {getPerc([r["tracker"] > 0 for r in stats])}')
+print()
 print('Average number of cookies per duration:')
 print(f'Less than one hour: {getAvg(map(stats, "session"))}')
 print(

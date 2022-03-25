@@ -19,7 +19,7 @@ export default function GDPR() {
   const search = (event) => {
     event.preventDefault();
     const domain = event.target.domain.value;
-    const matches = results.filter(x => x.site.endsWith(domain));
+    const matches = results.filter(x => x.site.split('://')[1].toLowerCase() === domain);
     const result = matches[0];
 
     if (!result) {

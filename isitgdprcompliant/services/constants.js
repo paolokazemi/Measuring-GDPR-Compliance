@@ -1,4 +1,4 @@
 const REPO_LINK = 'https://github.com/paolokazemi/Measuring-GDPR-Compliance';
-const RESULT_LINK = 'https://gist.githubusercontent.com/paolokazemi/f8cb2798c393a081a1cac059557f3e40/raw/2f2fb81a73799768957f542fbd88f0aa8db43a1a/analysis.json';
+const RESULT_LINK = 'https://gist.githubusercontent.com/paolokazemi/2a0013c407744c768ff1b52555566ef1/raw/8fbf0258c1aaa62cc8ccc1385e9100a19365e0e8/analysis.json';
 
 export { REPO_LINK, RESULT_LINK };

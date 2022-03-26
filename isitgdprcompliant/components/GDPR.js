@@ -112,7 +112,8 @@ export default function GDPR() {
                       <td>{getResult(cookie['persistent'])}</td>
                       <td>{getResult(cookie['tracker'])}</td>
                       <td>
-                        { cookie['cloaked_domain']['resolved_domain'].length > 1
+                        { cookie['cloaked_domain'] && cookie['cloaked_domain']['resolved_domain']
+                            && cookie['cloaked_domain']['resolved_domain'].length > 1
                           ? cookie['cloaked_domain']['resolved_domain'].slice(-1)[0]
                           : <i className="bi-x-lg" role="img" aria-label="No"></i>
                         }

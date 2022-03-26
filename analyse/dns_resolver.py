@@ -9,6 +9,9 @@ RESOLVER.nameservers = [
 
 
 def resolve_cname(domain):
+    if domain.startswith('.'):
+        domain = domain[1:]
+
     answers = [domain]
     while True:
         try:

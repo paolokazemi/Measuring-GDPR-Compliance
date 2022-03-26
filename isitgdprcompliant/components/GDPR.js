@@ -19,7 +19,7 @@ export default function GDPR() {
   const search = (event) => {
     event.preventDefault();
     const domain = event.target.domain.value;
-    const matches = results.filter(x => x.site.endsWith(domain));
+    const matches = results.filter(x => x.site.split('://')[1].toLowerCase() === domain);
     const result = matches[0];
 
     if (!result) {
@@ -112,7 +112,8 @@ export default function GDPR() {
                       <td>{getResult(cookie['persistent'])}</td>
                       <td>{getResult(cookie['tracker'])}</td>
                       <td>
-                        { cookie['cloaked_domain']['resolved_domain'].length > 1
+                        { cookie['cloaked_domain'] && cookie['cloaked_domain']['resolved_domain']
+                            && cookie['cloaked_domain']['resolved_domain'].length > 1
                           ? cookie['cloaked_domain']['resolved_domain'].slice(-1)[0]
                           : <i className="bi-x-lg" role="img" aria-label="No"></i>
                         }

@@ -98,7 +98,8 @@ def run_analysis(driver, info):
         cookie['persistent'] = cookie['duration'] > MONTH  # CookieCheck
         cookie['tracker'] = is_tracker(ext, trackers)
 
-        if resolved_domain := resolve_cname(ext.fqdn):
+        if ext.subdomain:
+            resolved_domain = resolve_cname(ext.fqdn)
             cloaked_tracker = False
             for domain in resolved_domain:
                 if is_tracker(tldextract.extract(domain), trackers):

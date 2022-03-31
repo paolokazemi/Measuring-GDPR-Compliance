@@ -25,7 +25,7 @@ def setup_driver(url):
         driver.get(url)
     except WebDriverException as e:
         if 'www.' not in url:
-            driver.close()
+            driver.quit()
             [proto, domain] = url.split('://')
             return setup_driver(f'{proto}://www.{domain}')
 
@@ -33,7 +33,7 @@ def setup_driver(url):
         error = msg[3] if len(msg) > 3 else 'ERR_GENERIC'
 
         possible_url = get_first_result(driver, url)
-        driver.close()
+        driver.quit()
         if possible_url is None:
             raise Exception('Site inaccessible with no google results.')
 
@@ -264,7 +264,7 @@ def visit_site(site):
     run_analysis(driver, info)
 
     # Restarting driver to test HTTPS
-    driver.close()
+    driver.quit()
     driver, https = setup_driver(f'https://{site}')
 
     # Detecting HTTPS support
@@ -280,6 +280,6 @@ def visit_site(site):
         run_analysis(driver, https)
         info['https'] = https
 
-    driver.close()
+    driver.quit()
 
     return info

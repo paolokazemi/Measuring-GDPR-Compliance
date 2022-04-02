@@ -288,11 +288,11 @@ for result in results:
     grouped_results[domain] = result
 
 ordered_results = [grouped_results[domain]
-                    for domain in sites
-                    if domain in grouped_results]
+                   for domain in sites
+                   if domain in grouped_results]
 ordered_stats = [getStatistics(result) for result in ordered_results]
 
-fig = plt.figure(figsize=(8.2,4.8))
+fig = plt.figure(figsize=(8.2, 4.8))
 plt.xlabel("Site tier")
 plt.ylabel("Median number of cookies")
 plt.bar([f'{i}-{i+50}'
@@ -302,7 +302,7 @@ plt.bar([f'{i}-{i+50}'
 plt.savefig(result_file.parent / "median_cookies_tier.png")
 print('Saved median cookies per tier to median_cookies_tier.png')
 
-fig = plt.figure(figsize=(8.2,4.8))
+fig = plt.figure(figsize=(8.2, 4.8))
 plt.xlabel("Site tier")
 plt.ylabel("Median first party cookies")
 plt.bar([f'{i}-{i+50}'
@@ -312,7 +312,7 @@ plt.bar([f'{i}-{i+50}'
 plt.savefig(result_file.parent / "median_1st_party_tier.png")
 print('Saved median 1st party per tier to median_1st_party_tier.png')
 
-fig = plt.figure(figsize=(8.2,4.8))
+fig = plt.figure(figsize=(8.2, 4.8))
 plt.xlabel("Site tier")
 plt.ylabel("Median third party cookies")
 plt.bar([f'{i}-{i+50}'
@@ -322,7 +322,7 @@ plt.bar([f'{i}-{i+50}'
 plt.savefig(result_file.parent / "median_3rd_party_tier.png")
 print('Saved median 3rd party per tier to median_3rd_party_tier.png')
 
-fig = plt.figure(figsize=(8.2,4.8))
+fig = plt.figure(figsize=(8.2, 4.8))
 plt.xlabel("Site tier")
 plt.ylabel("Median persistent cookies")
 plt.bar([f'{i}-{i+50}'
@@ -332,7 +332,7 @@ plt.bar([f'{i}-{i+50}'
 plt.savefig(result_file.parent / "median_persistent_tier.png")
 print('Saved median persistent per tier to median_persistent_tier.png')
 
-fig = plt.figure(figsize=(8.2,4.8))
+fig = plt.figure(figsize=(8.2, 4.8))
 plt.xlabel("Site tier")
 plt.ylabel("Median tracker cookies")
 plt.bar([f'{i}-{i+50}'

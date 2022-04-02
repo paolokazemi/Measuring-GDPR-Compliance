@@ -5,7 +5,7 @@ import json
 
 
 parser = argparse.ArgumentParser(
-    description='Scan websites for non-compliant implementations of GDPR.'
+    description="Scan websites for non-compliant implementations of GDPR."
 )
 parser.add_argument(
     "-i",

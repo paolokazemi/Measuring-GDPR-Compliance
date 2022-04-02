@@ -1,10 +1,11 @@
-from constants import HOUR, DAY, MONTH
+from constants import HOUR, DAY, MONTH, TOP_500_GLOBAL
 from pathlib import Path
 import argparse
 import json
 import matplotlib.pyplot as plt
 import tldextract
 from collections import Counter
+from statistics import median
 
 
 parser = argparse.ArgumentParser(
@@ -19,8 +20,13 @@ parser.add_argument(
 args = vars(parser.parse_args())
 
 result_file = Path(__file__).parent / args['input']
-with open(result_file, 'r') as f:
+top_sites_file = Path(__file__).parent / TOP_500_GLOBAL
+with open(result_file, 'r') as f, \
+        open(top_sites_file, 'r') as sites_file:
     results = json.load(f)
+    sites = [line.strip()
+             for line in sites_file.readlines()
+             if len(line.strip()) > 0]
 
 
 def filter(arr, func):
@@ -172,6 +178,26 @@ print(f'Average number of tracker cookies: '
       f'http: {getAvg(map(http_stats, "tracker"))}, '
       f'https: {getAvg(map(https_stats, "tracker"))}')
 print()
+print(f'Median number of cookies set: {median(map(stats, "cookies"))} '
+      f'http: {median(map(http_stats, "cookies"))}, '
+      f'https: {median(map(https_stats, "cookies"))}')
+print(f'Median number of first party cookies: '
+      f'{median(map(stats, "first_party"))} '
+      f'http: {median(map(http_stats, "first_party"))}, '
+      f'https: {median(map(https_stats, "first_party"))}')
+print(f'Median number of third party cookies: '
+      f'{median(map(stats, "third_party"))} '
+      f'http: {median(map(http_stats, "third_party"))}, '
+      f'https: {median(map(https_stats, "third_party"))}')
+print(f'Median number of persistent cookies: '
+      f'{median(map(stats, "persistent"))}, '
+      f'http: {median(map(http_stats, "persistent"))}, '
+      f'https: {median(map(https_stats, "persistent"))}')
+print(f'Median number of tracker cookies: '
+      f'{median(map(stats, "tracker"))}, '
+      f'http: {median(map(http_stats, "tracker"))}, '
+      f'https: {median(map(https_stats, "tracker"))}')
+print()
 print(f'First party cookies: {getPerc([r["first_party"] > 0 for r in stats])}')
 print(f'Third party cookies: {getPerc([r["third_party"] > 0 for r in stats])}')
 print(f'Persistent cookies: {getPerc([r["persistent"] > 0 for r in stats])}')
@@ -255,3 +281,63 @@ plt.ylabel("Number of websites")
 plt.hist(x=[r["cookies"] for r in stats], rwidth=0.6, bins=list(range(50)))
 plt.savefig(result_file.parent / "number_of_cookies.png")
 print('Saved set cookies per website histogram to number_of_cookies.png')
+
+grouped_results = {}
+for result in results:
+    domain = tldextract.extract(result['site']).registered_domain
+    grouped_results[domain] = result
+
+ordered_results = [grouped_results[domain]
+                    for domain in sites
+                    if domain in grouped_results]
+ordered_stats = [getStatistics(result) for result in ordered_results]
+
+fig = plt.figure(figsize=(8.2,4.8))
+plt.xlabel("Site tier")
+plt.ylabel("Median number of cookies")
+plt.bar([f'{i}-{i+50}'
+         for i in range(0, 450, 50)],
+        [int(median(map(ordered_stats[i:i+50], "cookies")))
+         for i in range(0, 450, 50)])
+plt.savefig(result_file.parent / "median_cookies_tier.png")
+print('Saved median cookies per tier to median_cookies_tier.png')
+
+fig = plt.figure(figsize=(8.2,4.8))
+plt.xlabel("Site tier")
+plt.ylabel("Median first party cookies")
+plt.bar([f'{i}-{i+50}'
+         for i in range(0, 450, 50)],
+        [int(median(map(ordered_stats[i:i+50], "first_party")))
+         for i in range(0, 450, 50)])
+plt.savefig(result_file.parent / "median_1st_party_tier.png")
+print('Saved median 1st party per tier to median_1st_party_tier.png')
+
+fig = plt.figure(figsize=(8.2,4.8))
+plt.xlabel("Site tier")
+plt.ylabel("Median third party cookies")
+plt.bar([f'{i}-{i+50}'
+         for i in range(0, 450, 50)],
+        [int(median(map(ordered_stats[i:i+50], "third_party")))
+         for i in range(0, 450, 50)])
+plt.savefig(result_file.parent / "median_3rd_party_tier.png")
+print('Saved median 3rd party per tier to median_3rd_party_tier.png')
+
+fig = plt.figure(figsize=(8.2,4.8))
+plt.xlabel("Site tier")
+plt.ylabel("Median persistent cookies")
+plt.bar([f'{i}-{i+50}'
+         for i in range(0, 450, 50)],
+        [int(median(map(ordered_stats[i:i+50], "persistent")))
+         for i in range(0, 450, 50)])
+plt.savefig(result_file.parent / "median_persistent_tier.png")
+print('Saved median persistent per tier to median_persistent_tier.png')
+
+fig = plt.figure(figsize=(8.2,4.8))
+plt.xlabel("Site tier")
+plt.ylabel("Median tracker cookies")
+plt.bar([f'{i}-{i+50}'
+         for i in range(0, 450, 50)],
+        [int(median(map(ordered_stats[i:i+50], "tracker")))
+         for i in range(0, 450, 50)])
+plt.savefig(result_file.parent / "median_tracker_tier.png")
+print('Saved median tracker per tier to median_tracker_tier.png')
